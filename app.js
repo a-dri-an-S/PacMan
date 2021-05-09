@@ -69,9 +69,16 @@ function createGhost() {
     let newGhost = g.ghost.cloneNode(true);
     newGhost.pos = 11 + ghosts.length;
     newGhost.style.display = 'block';
+    newGhost.counter = 0;
+    newGhost.dx = Math.floor(Math.random() * 4);
     newGhost.style.backgroundColor = board[ghosts.length];
     newGhost.namer = board[ghosts.length] + 'y';
     ghosts.push(newGhost);
+}
+
+function changeDir(ene) {
+    ene.dx = Math.floor(Math.random() * 4);
+    ene.counter = (Math.random() * 10) + 2;
 }
 
 function move(){
@@ -80,6 +87,23 @@ function move(){
         if (player.cool < 0) {
             // placing and movement of ghosts
             ghosts.forEach((ghost) => {
+                myBoard[ghost.pos].append(ghost);
+                ghost.counter--;
+                let oldPOS = ghost.pos; // original ghost position
+                
+                if (ghost.counter <= 0) {
+                    changeDir(ghost);
+                }  else {
+                    if (ghost.dx == 0) {ghost.pos -= g.size}
+                    else if (ghost.dx == 1) {ghost.pos += g.size}
+                    else if (ghost.dx == 2) {ghost.pos += 1}
+                    else if (ghost.dx == 3) {ghost.pos -= 1}
+                }
+                let valGhost = myBoard[ghost.pos]; // future of ghost pos
+                if (valGhost.t == 1) {
+                    ghost.pos = oldPOS
+                    changeDir(ghost);
+                }
                 myBoard[ghost.pos].append(ghost);
             })
         // keyboard events, movement of player
