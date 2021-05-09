@@ -22,16 +22,18 @@ const ghosts = [];
 const g = {
     x: '', 
     y: '', 
-    h: 100, 
+    h: 50, 
     size: 10, 
-    ghosts: 6, 
+    ghosts: 2, 
     inplay: false
 };
 const player = {
     pos: 32,
     speed: 4,
     cool: 0,
-    pause: false
+    pause: false,
+    score: 0,
+    lives: 1
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -40,6 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
     g.eye = document.querySelector('.eye'); // pacman eye
     g.mouth = document.querySelector('.mouth'); // pacman mouth
     g.ghost = document.querySelector('.ghost'); // ghosts
+    g.score = document.querySelector('.score');
+    g.lives = document.querySelector('.lives');
+
     g.ghost.style.display = 'none';
     createGame(); // create game board
 })
@@ -112,6 +117,8 @@ function move(){
                 }
                 if (player.pos == ghost.pos) {
                     console.log("Ghost got you " + ghost.namer);
+                    player.lives--;
+                    updateScore();
                     gameReset();
                 }
 
@@ -144,8 +151,10 @@ function move(){
             player.pos = tempPos;
         }
         if (newPlace.t == 2) {
-            console.log('dot');
+            console.log('dot'); // dot eaten
             myBoard[player.pos].innerHTML = '';
+            player.score++;
+            updateScore();
             newPlace.t = 0;
         }
 
@@ -212,6 +221,16 @@ function startPosPlayer(val) {
         return val;
     }
     return startPosPlayer(val + 1);
+}
+
+function updateScore() {
+    if (player.lives <= 0) {
+        console.log("Game Over!")
+        g.lives.innerHTML = 'Game Over'
+    } else {
+    g.score.innerHTML = `Score: ${player.score}`;
+    g.lives.innerHTML = `Lives: ${player.lives}`;
+    }
 }
 
 function createSquare(val) {
