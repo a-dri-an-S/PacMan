@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     g.mouth = document.querySelector('.mouth'); // pacman mouth
     g.ghost = document.querySelector('.ghost'); // ghosts
     g.ghost.style.display = 'none';
-    g.pacman.style.display = 'none';
     createGame(); // create game board
 })
 
@@ -51,7 +50,6 @@ document.addEventListener('keydown', (e) => {
         keys[e.code] = true;
     }
     if (!g.inplay && !player.pause) {
-        g.pacman.style.display = 'block';
         player.play = requestAnimationFrame(move);
         g.inplay = true;
     }
@@ -113,6 +111,7 @@ function move(){
                 }
                 if (player.pos == ghost.pos) {
                     console.log("Ghost got you " + ghost.namer);
+                    gameReset();
                 }
 
                 let valGhost = myBoard[ghost.pos]; // future of ghost pos
@@ -183,6 +182,34 @@ function createGame() {
     }
     g.grid.style.gridTemplateColumns = g.x;
     g.grid.style.gridTemplateRows =  g.x;
+    startPos();
+}
+
+function gameReset() {
+    console.log('paused');
+    window.cancelAnimationFrame(player.play);
+    g.inplay = false;
+    player.pause = true;
+    setTimeout(startPos, 3000);
+}
+
+function startPos() {
+    player.pause = false;
+    let firstStartPos = 20;
+    player.pos = startPosPlayer(firstStartPos);
+    myBoard[player.pos].append(g.pacman);
+    ghosts.forEach((ghost, ind) => {
+        let temp = (g.size + 1) + ind;
+        ghost.pos = startPosPlayer(temp);
+        myBoard[ghost.pos].append(ghost);
+    })
+}
+
+function startPosPlayer(val) {
+    if (myBoard[val].t != 1) {
+        return val;
+    }
+    return startPosPlayer(val + 1);
 }
 
 function createSquare(val) {
