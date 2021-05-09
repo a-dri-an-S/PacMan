@@ -12,6 +12,12 @@ const tempBoard = [
     1,2,2,2,2,2,2,2,2,1,
     1,1,1,1,1,1,1,1,1,1,
 ];
+const keys = {
+    ArrowRight: false, 
+    ArrowLeft: false, 
+    ArrowUp: false, 
+    ArrowDown: false
+};
 const ghosts = [];
 const g = {
     x: '', 
@@ -22,7 +28,7 @@ const g = {
     inplay: false
 };
 const player = {
-    pos: 20,
+    pos: 32,
     speed: 4,
     cool: 0,
     pause: false
@@ -35,16 +41,62 @@ document.addEventListener('DOMContentLoaded', () => {
     g.mouth = document.querySelector('.mouth'); // pacman mouth
     g.ghost = document.querySelector('.ghost'); // ghosts
     g.ghost.style.display = 'none';
+    g.pacman.style.display = 'none';
     createGame(); // create game board
-    console.log(g);
 })
+
+document.addEventListener('keydown', (e) => {
+    console.log(e.code); // key presses
+    if(e.code in keys) {
+        keys[e.code] = true;
+    }
+    player.play = requestAnimationFrame(move);
+})
+
+document.addEventListener('keyup', (e) => {
+    if(e.code in keys) {
+        keys[e.code] = false;
+    }
+})
+
+
+function createGhost() {
+    let newGhost = g.ghost.cloneNode(true);
+    newGhost.pos = 11 + ghosts.length;
+    newGhost.style.display = 'block';
+    newGhost.style.backgroundColor = board[ghosts.length];
+    newGhost.namer = board[ghosts.length] + 'y';
+    ghosts.push(newGhost);
+    console.log(newGhost);
+}
+
+function move(){
+    console.log(ghosts);
+    ghosts.forEach((ghost) => {
+        myBoard[ghost.pos].append(ghost);
+    })
+    if (keys.ArrowRight) {
+        player.pos += 1;
+    } else if (keys.ArrowLeft) {
+        player.pos -= 1;
+    } else if (keys.ArrowUp) {
+        player.pos -= g.size
+    } else if (keys.ArrowDown) {
+        player.pos += g.size;
+    }
+    console.log(player.pos);
+    g.pacman.style.display = 'block';
+    myBoard[player.pos].append(g.pacman);
+    player.play = webkitRequestAnimationFrame(move);
+}
+
 
 function createGame() {
     for(let i = 0; i < g.ghosts; i++) {
         createGhost();
     }
     tempBoard.forEach((cell) => {
-        console.log(cell);
+        // console.log(cell);
         createSquare(cell);
     })
     for(let i = 0; i < g.size; i++) {
