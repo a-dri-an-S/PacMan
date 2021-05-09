@@ -70,6 +70,7 @@ function createGhost() {
     newGhost.counter = 0;
     newGhost.dx = Math.floor(Math.random() * 4);
     newGhost.style.backgroundColor = board[ghosts.length];
+    newGhost.style.opacity = '0.8'
     newGhost.namer = board[ghosts.length] + 'y';
     ghosts.push(newGhost);
 }
@@ -162,9 +163,10 @@ function move(){
         player.cool = player.speed; // set cooloff
         console.log(newPlace.t);
     }
-
-    myBoard[player.pos].append(g.pacman);
-    player.play = requestAnimationFrame(move);
+    if (!player.pause){
+        myBoard[player.pos].append(g.pacman);
+        player.play = requestAnimationFrame(move);
+        }
     }
 }
 
