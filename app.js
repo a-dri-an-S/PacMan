@@ -46,11 +46,16 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 document.addEventListener('keydown', (e) => {
-    console.log(e.code); // key presses
+    // key presses
     if(e.code in keys) {
         keys[e.code] = true;
     }
-    player.play = requestAnimationFrame(move);
+    if (!g.inplay && !player.pause) {
+        g.pacman.style.display = 'block';
+        player.play = requestAnimationFrame(move);
+        g.inplay = true;
+    }
+    
 })
 
 document.addEventListener('keyup', (e) => {
@@ -67,27 +72,45 @@ function createGhost() {
     newGhost.style.backgroundColor = board[ghosts.length];
     newGhost.namer = board[ghosts.length] + 'y';
     ghosts.push(newGhost);
-    console.log(newGhost);
 }
 
 function move(){
-    console.log(ghosts);
-    ghosts.forEach((ghost) => {
-        myBoard[ghost.pos].append(ghost);
-    })
-    if (keys.ArrowRight) {
-        player.pos += 1;
-    } else if (keys.ArrowLeft) {
-        player.pos -= 1;
-    } else if (keys.ArrowUp) {
-        player.pos -= g.size
-    } else if (keys.ArrowDown) {
-        player.pos += g.size;
+    if (g.inplay) {
+        player.cool--; // player cooldown / slowdown
+        if (player.cool < 0) {
+            // placing and movement of ghosts
+            ghosts.forEach((ghost) => {
+                myBoard[ghost.pos].append(ghost);
+            })
+        // keyboard events, movement of player
+        let tempPos = player.pos; // current pos 
+        if (keys.ArrowRight) {
+            player.pos += 1;
+        } else if (keys.ArrowLeft) {
+            player.pos -= 1;
+        } else if (keys.ArrowUp) {
+            player.pos -= g.size
+        } else if (keys.ArrowDown) {
+            player.pos += g.size;
+        }
+
+        let newPlace = myBoard[player.pos]; // future position
+        if (newPlace.t == 1) {
+            console.log('wall');
+            player.pos = tempPos;
+        }
+        if (newPlace.t == 2) {
+            console.log('dot');
+            myBoard[player.pos].innerHTML = '';
+            newPlace.t = 0;
+        }
+        player.cool = player.speed; // set cooloff
+        console.log(newPlace.t);
     }
-    console.log(player.pos);
-    g.pacman.style.display = 'block';
+
     myBoard[player.pos].append(g.pacman);
-    player.play = webkitRequestAnimationFrame(move);
+    player.play = requestAnimationFrame(move);
+    }
 }
 
 
@@ -123,7 +146,7 @@ function createSquare(val) {
     g.grid.append(div);
     myBoard.push(div);
 
-    div.t = val;
+    div.t = val; // element type of content
     div.idVal = myBoard.length;
     div.addEventListener('click', (e) => {
         console.log(div);
