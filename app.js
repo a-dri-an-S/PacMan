@@ -86,8 +86,12 @@ function move(){
         let tempPos = player.pos; // current pos 
         if (keys.ArrowRight) {
             player.pos += 1;
+            g.eye.style.left = '20%';
+            g.mouth.style.left = '60%';
         } else if (keys.ArrowLeft) {
             player.pos -= 1;
+            g.eye.style.left = '60%';
+            g.mouth.style.left = '0%';
         } else if (keys.ArrowUp) {
             player.pos -= g.size
         } else if (keys.ArrowDown) {
@@ -104,6 +108,18 @@ function move(){
             myBoard[player.pos].innerHTML = '';
             newPlace.t = 0;
         }
+
+        // open and close mouth function
+        if (player.pos != tempPos) {
+            if(player.tog) {
+                g.mouth.style.height = '30%';
+                player.tog = false;
+            } else {
+                g.mouth.style.height = '10%';
+                player.tog = true;
+            }
+        }
+
         player.cool = player.speed; // set cooloff
         console.log(newPlace.t);
     }
