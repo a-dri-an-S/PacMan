@@ -76,9 +76,21 @@ function createGhost() {
     ghosts.push(newGhost);
 }
 
+function findDir(a) {
+    let val = [a.pos % g.size, Math.ceil(a.pos/g.size)]; // col, row
+    return val;
+}
+
 function changeDir(ene) {
+    let gg = findDir(ene);
+    let pp = findDir(player);
+
+    let ran = Math.floor(Math.random() * 2);
+    if (ran == 0) { ene.dx = (gg)[0] < pp[0] ? 2 : 3 } // horizontal
+    else { ene.dx == (gg)[1] < pp[1] ? 1 : 0 } // vertical
+    
     ene.dx = Math.floor(Math.random() * 4);
-    ene.counter = (Math.random() * 10) + 2;
+    ene.counter = (Math.random() * 1) + 2;
 }
 
 function move(){
@@ -90,7 +102,7 @@ function move(){
                 myBoard[ghost.pos].append(ghost);
                 ghost.counter--;
                 let oldPOS = ghost.pos; // original ghost position
-                
+
                 if (ghost.counter <= 0) {
                     changeDir(ghost);
                 }  else {
@@ -99,6 +111,10 @@ function move(){
                     else if (ghost.dx == 2) {ghost.pos += 1}
                     else if (ghost.dx == 3) {ghost.pos -= 1}
                 }
+                if (player.pos == ghost.pos) {
+                    console.log("Ghost got you " + ghost.namer);
+                }
+
                 let valGhost = myBoard[ghost.pos]; // future of ghost pos
                 if (valGhost.t == 1) {
                     ghost.pos = oldPOS
