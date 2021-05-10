@@ -33,7 +33,8 @@ const player = {
     cool: 0,
     pause: false,
     score: 0,
-    lives: 1
+    lives: 1,
+    gameover: true
 };
 
 const startGame = document.querySelector('.btn');
@@ -70,17 +71,7 @@ document.addEventListener('keyup', (e) => {
     }
 })
 
-startGame.addEventListener('click', (e) => {
-    console.log('start game');
-    player.score = 0;
-    player.lives = 3;
-    createGame(); // create game board
-    updateScore();
-    g.grid.focus();
-    g.grid.style.display = 'grid';
-    startGame.style.display = 'none';
-    g.pacman.style.display = 'block';
-})
+startGame.addEventListener('click', starterGame);
 
 
 // MAIN GAME PLAY (GAME LOGIC)
@@ -168,12 +159,38 @@ function move(){
 
 
 // STARTING AND RESTARTING GAME
+function starterGame() {
+    console.log('start game');
+    g.grid.innerHTML = '';
+    g.x = '';
+    player.score = 0;
+    player.lives = 3;
+    player.gameover = false;
+    createGame(); // create game board
+    updateScore();
+    g.grid.focus();
+    g.grid.style.display = 'grid';
+    startGame.style.display = 'none';
+    g.pacman.style.display = 'block';
+
+}
+
+function endGame() {
+    startGame.style.display = 'block';
+}
+
 function gameReset() {
     console.log('paused');
     window.cancelAnimationFrame(player.play);
     g.inplay = false;
     player.pause = true;
-    setTimeout(startPos, 3000);
+    if (player.lives <= 0) {
+        player.gameover = true;
+        endGame();
+    }
+    if (!player.gameover) {
+        setTimeout(startPos, 3000);
+    }
 }
 
 function startPos() {
@@ -199,7 +216,7 @@ function startPosPlayer(val) {
 // GAME UPDATES
 function updateScore() {
     if (player.lives <= 0) {
-        console.log("Game Over!")
+        player.gameover = true;
         g.lives.innerHTML = 'Game Over'
     } else {
     g.score.innerHTML = `Score: ${player.score}`;
