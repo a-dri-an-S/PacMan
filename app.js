@@ -2,12 +2,12 @@ const board = ['pink', 'blue', 'green', 'red', 'purple', 'orange'];
 const myBoard = [];
 const tempBoard = [
     1,1,1,1,1,1,1,1,1,1,
-    1,2,3,2,2,2,2,2,2,1,
-    1,2,1,1,1,1,1,1,2,1,
-    1,2,2,2,3,2,2,2,2,1,
-    1,2,1,1,1,1,1,1,2,1,
-    1,2,2,2,2,2,2,2,2,1,
-    1,2,1,1,1,1,1,1,2,1,
+    1,4,4,4,2,2,2,2,2,1,
+    1,1,1,1,2,2,2,1,2,1,
+    1,2,2,2,3,2,1,2,2,1,
+    1,2,1,2,1,1,1,1,2,1,
+    1,2,2,3,2,1,2,2,2,1,
+    1,2,1,1,2,1,1,1,2,1,
     1,2,2,2,2,2,2,2,2,1,
     1,2,2,2,2,2,2,2,2,1,
     1,1,1,1,1,1,1,1,1,1,
@@ -25,7 +25,8 @@ const g = {
     h: 50, 
     size: 10, 
     ghosts: 5, 
-    inplay: false
+    inplay: false,
+    startGhost: 11
 };
 const player = {
     pos: 32,
@@ -74,7 +75,11 @@ document.addEventListener('keyup', (e) => {
     }
 })
 
-startGame.addEventListener('click', starterGame);
+startGame.addEventListener('click', boardBuilder);
+
+function boardBuilder() {
+    console.log(tempBoard)
+}
 
 
 // MAIN GAME PLAY (GAME LOGIC)
@@ -130,7 +135,7 @@ function move(){
                 }
                 
                 // *******************************************************
-                ghost.pos = oldPOS // FOR TESTING ONLY, REMOVE WHEN DONE
+                // ghost.pos = oldPOS // FOR TESTING ONLY, REMOVE WHEN DONE
                 // *******************************************************
                 
                 if (player.pos === ghost.pos) {
@@ -139,7 +144,8 @@ function move(){
                         // you ate the ghosts
                         player.score += 100;
                         let randomRegenerateSpot = Math.floor(Math.random() * 40);
-                        ghost.pos = startPosPlayer(randomRegenerateSpot);
+                        // ghost.pos = startPosPlayer(randomRegenerateSpot);
+                        ghost.pos = g.startGhost;
                     } else {
                         player.lives--;
                         gameReset();
@@ -173,7 +179,7 @@ function move(){
         }
 
         let newPlace = myBoard[player.pos]; // future position
-        if (newPlace.t === 1) {
+        if (newPlace.t === 1 || newPlace.t === 4) {
             // console.log('wall');
             player.pos = tempPos;
         }
@@ -305,7 +311,7 @@ function updateScore() {
 //  GAME BOARD SET UP
 function createGhost() {
     let newGhost = g.ghost.cloneNode(true);
-    newGhost.pos = 11 + ghosts.length;
+    newGhost.pos = g.startGhost;
     newGhost.style.display = 'block';
     newGhost.counter = 0;
     newGhost.defaultColor = board[ghosts.length];
@@ -345,6 +351,14 @@ function createSquare(val) {
         const dot = document.createElement('div');
         dot.classList.add('superdot');
         div.append(dot);
+    } // add superdot 
+    if(val === 4 ) {
+        // hideout for ghosts
+        div.classList.add('hideout');
+        if (g.startGhost === 11) {
+            g.startGhost = myBoard.length;
+        }
+
     } // add superdot 
     g.grid.append(div);
     myBoard.push(div);
