@@ -84,11 +84,16 @@ function move(){
         if (player.cool < 0) {
             // placing and movement of ghosts
             let tempPower = 0;
-
             if (player.powerup) {
                 player.powerCount--;
                 g.pacman.style.backgroundColor = 'red';
-                if (player.powerCount <= 0){
+                if (player.powerCount < 20) {
+                    g.pacman.style.backgroundColor = 'orange';
+                    if (player.powerCount % 2) {
+                        g.pacman.style.backgroundColor = 'white';
+                    }
+                }
+                if (player.powerCount <= 0) {
                     player.powerup = false;
                     g.pacman.style.backgroundColor = 'yellow';
                     console.log('power down')
@@ -130,9 +135,16 @@ function move(){
                 
                 if (player.pos === ghost.pos) {
                     // console.log("Ghost got you " + ghost.namer);
-                    player.lives--;
+                    if (player.powerCount > 0) {
+                        // you ate the ghosts
+                        player.score += 100;
+                        let randomRegenerateSpot = Math.floor(Math.random() * 40);
+                        ghost.pos = startPosPlayer(randomRegenerateSpot);
+                    } else {
+                        player.lives--;
+                        gameReset();
+                    }
                     updateScore();
-                    gameReset();
                 }
 
                 let valGhost = myBoard[ghost.pos]; // future of ghost pos
@@ -182,6 +194,9 @@ function move(){
             player.powerup = true;
             console.log('powerup');
             myBoard[player.pos].innerHTML = '';
+            player.score += 10;
+            updateScore();
+            newPlace.t = 0;
         }
 
         // open and close mouth function
