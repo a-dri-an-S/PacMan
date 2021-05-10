@@ -3,6 +3,7 @@
         "gameover",
         "gamewin",
         "inplay",
-        "pacman"
+        "pacman",
+        "powerup"
     ]
 }

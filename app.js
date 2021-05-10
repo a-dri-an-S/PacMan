@@ -4,7 +4,7 @@ const tempBoard = [
     1,1,1,1,1,1,1,1,1,1,
     1,2,3,2,2,2,2,2,2,1,
     1,2,1,1,1,1,1,1,2,1,
-    1,2,2,2,2,2,2,2,2,1,
+    1,2,2,2,3,2,2,2,2,1,
     1,2,1,1,1,1,1,1,2,1,
     1,2,2,2,2,2,2,2,2,1,
     1,2,1,1,1,1,1,1,2,1,
@@ -24,7 +24,7 @@ const g = {
     y: '', 
     h: 50, 
     size: 10, 
-    ghosts: 0, 
+    ghosts: 5, 
     inplay: false
 };
 const player = {
@@ -35,7 +35,9 @@ const player = {
     score: 0,
     lives: 1,
     gameover: true,
-    gamewin: false
+    gamewin: false,
+    powerup: false,
+    powerCount: 0
 };
 
 const startGame = document.querySelector('.btn');
@@ -81,7 +83,29 @@ function move(){
         player.cool--; // player cooldown / slowdown
         if (player.cool < 0) {
             // placing and movement of ghosts
+            let tempPower = 0;
+
+            if (player.powerup) {
+                player.powerCount--;
+                g.pacman.style.backgroundColor = 'red';
+                if (player.powerCount <= 0){
+                    player.powerup = false;
+                    g.pacman.style.backgroundColor = 'yellow';
+                    console.log('power down')
+                    tempPower = 1;
+                }
+            }
+
             ghosts.forEach((ghost) => {
+                if (tempPower === 1) {
+                    ghost.style.backgroundColor = ghost.defaultColor;
+                } else if (player.powerCount > 0){
+                    if (player.powerCount % 2){
+                        ghost.style.backgroundColor = 'white';
+                    } else {
+                        ghost.style.backgroundColor = 'teal';
+                    }
+                }
                 myBoard[ghost.pos].append(ghost);
                 ghost.counter--;
                 let oldPOS = ghost.pos; // original ghost position
@@ -99,6 +123,11 @@ function move(){
                         ghost.pos -= 1;
                     }
                 }
+                
+                // *******************************************************
+                ghost.pos = oldPOS // FOR TESTING ONLY, REMOVE WHEN DONE
+                // *******************************************************
+                
                 if (player.pos === ghost.pos) {
                     // console.log("Ghost got you " + ghost.namer);
                     player.lives--;
@@ -111,6 +140,8 @@ function move(){
                     ghost.pos = oldPOS
                     changeDir(ghost);
                 }
+                
+
                 myBoard[ghost.pos].append(ghost);
             })
         // keyboard events, movement of player
@@ -145,6 +176,12 @@ function move(){
             player.score++;
             updateScore();
             newPlace.t = 0;
+        }
+        if (newPlace.t === 3) {
+            player.powerCount = 100;
+            player.powerup = true;
+            console.log('powerup');
+            myBoard[player.pos].innerHTML = '';
         }
 
         // open and close mouth function
@@ -256,6 +293,7 @@ function createGhost() {
     newGhost.pos = 11 + ghosts.length;
     newGhost.style.display = 'block';
     newGhost.counter = 0;
+    newGhost.defaultColor = board[ghosts.length];
     newGhost.dx = Math.floor(Math.random() * 4);
     newGhost.style.backgroundColor = board[ghosts.length];
     newGhost.style.opacity = '0.8'
