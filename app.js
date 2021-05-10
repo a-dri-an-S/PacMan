@@ -24,7 +24,7 @@ const g = {
     y: '', 
     h: 50, 
     size: 10, 
-    ghosts: 2, 
+    ghosts: 0, 
     inplay: false
 };
 const player = {
@@ -34,7 +34,8 @@ const player = {
     pause: false,
     score: 0,
     lives: 1,
-    gameover: true
+    gameover: true,
+    gamewin: false
 };
 
 const startGame = document.querySelector('.btn');
@@ -87,21 +88,26 @@ function move(){
 
                 if (ghost.counter <= 0) {
                     changeDir(ghost);
-                }  else {
-                    if (ghost.dx == 0) {ghost.pos -= g.size}
-                    else if (ghost.dx == 1) {ghost.pos += g.size}
-                    else if (ghost.dx == 2) {ghost.pos += 1}
-                    else if (ghost.dx == 3) {ghost.pos -= 1}
+                } else {
+                    if (ghost.dx === 0) {
+                        ghost.pos -= g.size;
+                    } else if (ghost.dx === 1) {
+                        ghost.pos += g.size;
+                    } else if (ghost.dx === 2) {
+                        ghost.pos += 1;
+                    } else if (ghost.dx === 3) {
+                        ghost.pos -= 1;
+                    }
                 }
-                if (player.pos == ghost.pos) {
-                    console.log("Ghost got you " + ghost.namer);
+                if (player.pos === ghost.pos) {
+                    // console.log("Ghost got you " + ghost.namer);
                     player.lives--;
                     updateScore();
                     gameReset();
                 }
 
                 let valGhost = myBoard[ghost.pos]; // future of ghost pos
-                if (valGhost.t == 1) {
+                if (valGhost.t === 1) {
                     ghost.pos = oldPOS
                     changeDir(ghost);
                 }
@@ -124,13 +130,18 @@ function move(){
         }
 
         let newPlace = myBoard[player.pos]; // future position
-        if (newPlace.t == 1) {
-            console.log('wall');
+        if (newPlace.t === 1) {
+            // console.log('wall');
             player.pos = tempPos;
         }
-        if (newPlace.t == 2) {
-            console.log('dot'); // dot eaten
+        if (newPlace.t === 2) {
+            // console.log('dot'); // dot eaten
+            // counting the dots that are left
             myBoard[player.pos].innerHTML = '';
+            let tempDots = document.querySelectorAll('.dot');
+            if (tempDots.length === 0){
+                playerWins();
+            };
             player.score++;
             updateScore();
             newPlace.t = 0;
@@ -148,7 +159,7 @@ function move(){
         }
 
         player.cool = player.speed; // set cooloff
-        console.log(newPlace.t);
+        // console.log(newPlace.t);
     }
     if (!player.pause){
         myBoard[player.pos].append(g.pacman);
@@ -162,11 +173,15 @@ function move(){
 function starterGame() {
     myBoard.length = 0;
     ghosts.length = 0;
-    console.log('start game');
+    // console.log('start game');
     g.grid.innerHTML = '';
     g.x = '';
-    player.score = 0;
-    player.lives = 1;
+    if(!player.gamewin){
+        player.score = 0;
+        player.lives = 1;
+    } else {
+        player.gamewin = false;
+    }
     player.gameover = false;
     createGame(); // create game board
     updateScore();
@@ -177,12 +192,20 @@ function starterGame() {
 
 }
 
+function playerWins() {
+    player.gamewin = true;
+    g.inplay = false;
+    player.pause = true;
+    startGame.style.display = 'block';
+}
+
 function endGame() {
+    player.gamewin = false;
     startGame.style.display = 'block';
 }
 
 function gameReset() {
-    console.log('paused');
+    // console.log('paused');
     window.cancelAnimationFrame(player.play);
     g.inplay = false;
     player.pause = true;
@@ -245,7 +268,7 @@ function createGame() {
         createGhost();
     }
     tempBoard.forEach((cell) => {
-        // console.log(cell);
+        // // console.log(cell);
         createSquare(cell);
     })
     for(let i = 0; i < g.size; i++) {
@@ -259,13 +282,13 @@ function createGame() {
 function createSquare(val) {
     const div = document.createElement('div');
     div.classList.add('box');
-    if(val == 1) {div.classList.add('wall');} // add wall to element
-    if(val == 2 ) {
+    if(val === 1) {div.classList.add('wall');} // add wall to element
+    if(val === 2 ) {
         const dot = document.createElement('div');
         dot.classList.add('dot');
         div.append(dot);
     } // add dot 
-    if(val == 3 ) {
+    if(val === 3 ) {
         const dot = document.createElement('div');
         dot.classList.add('superdot');
         div.append(dot);
@@ -276,7 +299,7 @@ function createSquare(val) {
     div.t = val; // element type of content
     div.idVal = myBoard.length;
     div.addEventListener('click', (e) => {
-        console.log(div);
+        // console.log(div);
     })
 }
 
@@ -292,8 +315,8 @@ function changeDir(ene) {
     let pp = findDir(player);
 
     let ran = Math.floor(Math.random() * 2);
-    if (ran == 0) { ene.dx = (gg)[0] < pp[0] ? 2 : 3 } // horizontal
-    else { ene.dx == (gg)[1] < pp[1] ? 1 : 0 } // vertical
+    if (ran === 0) { ene.dx = (gg)[0] < pp[0] ? 2 : 3 } // horizontal
+    else { ene.dx === (gg)[1] < pp[1] ? 1 : 0 } // vertical
     
     ene.dx = Math.floor(Math.random() * 4);
     ene.counter = (Math.random() * 1) + 2;
