@@ -1,4 +1,4 @@
-const board = ['pink', 'blue', 'green', 'red', 'purple', 'orange'];
+const board = ['white', 'white', 'white', 'white', 'white', 'white'];
 const myBoard = [];
 const tempBoard = [
     1,1,1,1,1,1,1,1,1,1,
@@ -23,14 +23,14 @@ const g = {
     x: '', 
     y: '', 
     h: 50, 
-    size: 10, 
-    ghosts: 5, 
+    size: 20, 
+    ghosts: 3, 
     inplay: false,
     startGhost: 11
 };
 const player = {
     pos: 32,
-    speed: 4,
+    speed: 6,
     cool: 0,
     pause: false,
     score: 0,
@@ -78,7 +78,46 @@ document.addEventListener('keyup', (e) => {
 startGame.addEventListener('click', boardBuilder);
 
 function boardBuilder() {
-    console.log(tempBoard)
+    console.log(tempBoard);
+    tempBoard.length = 0;
+    let boxSize = (document.documentElement.clientHeight < document.documentElement.clientWidth) ? document.documentElement.clientHeight : document.documentElement.clientWidth;
+    console.log(boxSize);
+    g.h = (boxSize / g.size) - (boxSize / (g.size * 5));
+    console.log(g.h);
+    let tog = false;
+    for (let x = 0; x < g.size; x++) {
+    let walls = 0;
+    for (let y = 0; y < g.size; y++) {
+        let val = 2;
+        walls--;
+        if (walls > 0 && (x - 1) % 2) {
+            val = 1;
+        }
+        else {
+            walls = Math.floor(Math.random() * (g.size / 2));
+        }
+        if (x == 1 || x == (g.size - 3) || y == 1 || y == (g.size - 2)) {
+            val = 2; //place dot
+        }
+        if (x == (g.size - 2)) {
+            if (!tog) {
+            g.startGhost = tempBoard.length;
+            tog = true;
+            }
+            val = 4;
+        }
+        if ((y == 3) || (y == (g.size - 4))) {
+            if (x == 1 || x == (g.size - 3)) {
+            val = 3;
+            }
+        }
+        if (x == 0 || x == (g.size - 1) || y == 0 || y == (g.size - 1)) {
+            val = 1;
+        }
+        tempBoard.push(val);
+        }
+    }
+    starterGame();
 }
 
 
@@ -91,16 +130,16 @@ function move(){
             let tempPower = 0;
             if (player.powerup) {
                 player.powerCount--;
-                g.pacman.style.backgroundColor = 'red';
+                g.pacman.style.backgroundColor = 'rgb(32, 25, 25)';
                 if (player.powerCount < 20) {
-                    g.pacman.style.backgroundColor = 'orange';
+                    g.pacman.style.backgroundColor = 'rgb(10, 8, 8)';
                     if (player.powerCount % 2) {
                         g.pacman.style.backgroundColor = 'white';
                     }
                 }
                 if (player.powerCount <= 0) {
                     player.powerup = false;
-                    g.pacman.style.backgroundColor = 'yellow';
+                    g.pacman.style.backgroundColor = 'rgb(61, 46, 46)';
                     console.log('power down')
                     tempPower = 1;
                 }
@@ -119,7 +158,6 @@ function move(){
                 myBoard[ghost.pos].append(ghost);
                 ghost.counter--;
                 let oldPOS = ghost.pos; // original ghost position
-
                 if (ghost.counter <= 0) {
                     changeDir(ghost);
                 } else {
@@ -145,6 +183,7 @@ function move(){
                         player.score += 100;
                         let randomRegenerateSpot = Math.floor(Math.random() * 40);
                         // ghost.pos = startPosPlayer(randomRegenerateSpot);
+                        ghost.stopped = 100;
                         ghost.pos = g.startGhost;
                     } else {
                         player.lives--;
@@ -157,6 +196,10 @@ function move(){
                 if (valGhost.t === 1) {
                     ghost.pos = oldPOS
                     changeDir(ghost);
+                }
+                if (ghost.stopped > 0) {
+                    ghost.stopped--;
+                    ghost.pos = startPosPlayer(g.startGhost);
                 }
                 
 
@@ -282,7 +325,7 @@ function startPos() {
     player.pos = startPosPlayer(firstStartPos);
     myBoard[player.pos].append(g.pacman);
     ghosts.forEach((ghost, ind) => {
-        let temp = (g.size + 1) + ind;
+        let temp = g.startGhost;
         ghost.pos = startPosPlayer(temp);
         myBoard[ghost.pos].append(ghost);
     })
@@ -381,9 +424,13 @@ function changeDir(ene) {
     let gg = findDir(ene);
     let pp = findDir(player);
 
-    let ran = Math.floor(Math.random() * 2);
-    if (ran === 0) { ene.dx = (gg)[0] < pp[0] ? 2 : 3 } // horizontal
-    else { ene.dx === (gg)[1] < pp[1] ? 1 : 0 } // vertical
+    let ran = Math.floor(Math.random() * 3);
+    if (ran < 2) { 
+        ene.dx = (gg)[0] < pp[0] ? 2 : 3; // horizontal 
+    } else { 
+        ene.dx === (gg)[1] < pp[1] ? 1 : 0; // vertical
+    }
+    // ene.dx = (gg)[0] < pp[0] ? 2 : 3; 
     
     ene.dx = Math.floor(Math.random() * 4);
     ene.counter = (Math.random() * 1) + 2;
