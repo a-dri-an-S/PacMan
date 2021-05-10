@@ -160,11 +160,13 @@ function move(){
 
 // STARTING AND RESTARTING GAME
 function starterGame() {
+    myBoard.length = 0;
+    ghosts.length = 0;
     console.log('start game');
     g.grid.innerHTML = '';
     g.x = '';
     player.score = 0;
-    player.lives = 3;
+    player.lives = 1;
     player.gameover = false;
     createGame(); // create game board
     updateScore();
