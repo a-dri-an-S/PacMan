@@ -21,8 +21,15 @@
     border-radius: 20px;
     background-color: green;
     z-index: 3;
-
 } 
+
+.btn {
+    font-size: 2em;
+    width: 50%;
+    display: block;
+    padding: 20px;
+    margin: auto;
+}
 
 .eyes {
     position: absolute;

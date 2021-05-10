@@ -36,6 +36,8 @@ const player = {
     lives: 1
 };
 
+const startGame = document.querySelector('.btn');
+
 document.addEventListener('DOMContentLoaded', () => {
     g.grid = document.querySelector('.grid'); // this is the game board
     g.pacman = document.querySelector('.pacman'); // this is the player, pacman
@@ -44,9 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
     g.ghost = document.querySelector('.ghost'); // ghosts
     g.score = document.querySelector('.score');
     g.lives = document.querySelector('.lives');
-
+    g.pacman.style.display = 'none';
     g.ghost.style.display = 'none';
-    createGame(); // create game board
+    g.grid.style.display = 'none';
+
 })
 
 document.addEventListener('keydown', (e) => {
@@ -67,36 +70,20 @@ document.addEventListener('keyup', (e) => {
     }
 })
 
+startGame.addEventListener('click', (e) => {
+    console.log('start game');
+    player.score = 0;
+    player.lives = 3;
+    createGame(); // create game board
+    updateScore();
+    g.grid.focus();
+    g.grid.style.display = 'grid';
+    startGame.style.display = 'none';
+    g.pacman.style.display = 'block';
+})
 
-function createGhost() {
-    let newGhost = g.ghost.cloneNode(true);
-    newGhost.pos = 11 + ghosts.length;
-    newGhost.style.display = 'block';
-    newGhost.counter = 0;
-    newGhost.dx = Math.floor(Math.random() * 4);
-    newGhost.style.backgroundColor = board[ghosts.length];
-    newGhost.style.opacity = '0.8'
-    newGhost.namer = board[ghosts.length] + 'y';
-    ghosts.push(newGhost);
-}
 
-function findDir(a) {
-    let val = [a.pos % g.size, Math.ceil(a.pos/g.size)]; // col, row
-    return val;
-}
-
-function changeDir(ene) {
-    let gg = findDir(ene);
-    let pp = findDir(player);
-
-    let ran = Math.floor(Math.random() * 2);
-    if (ran == 0) { ene.dx = (gg)[0] < pp[0] ? 2 : 3 } // horizontal
-    else { ene.dx == (gg)[1] < pp[1] ? 1 : 0 } // vertical
-    
-    ene.dx = Math.floor(Math.random() * 4);
-    ene.counter = (Math.random() * 1) + 2;
-}
-
+// MAIN GAME PLAY (GAME LOGIC)
 function move(){
     if (g.inplay) {
         player.cool--; // player cooldown / slowdown
@@ -180,22 +167,7 @@ function move(){
 }
 
 
-function createGame() {
-    for(let i = 0; i < g.ghosts; i++) {
-        createGhost();
-    }
-    tempBoard.forEach((cell) => {
-        // console.log(cell);
-        createSquare(cell);
-    })
-    for(let i = 0; i < g.size; i++) {
-        g.x += ` ${g.h}px`; // cell grid height
-    }
-    g.grid.style.gridTemplateColumns = g.x;
-    g.grid.style.gridTemplateRows =  g.x;
-    startPos();
-}
-
+// STARTING AND RESTARTING GAME
 function gameReset() {
     console.log('paused');
     window.cancelAnimationFrame(player.play);
@@ -223,6 +195,8 @@ function startPosPlayer(val) {
     return startPosPlayer(val + 1);
 }
 
+
+// GAME UPDATES
 function updateScore() {
     if (player.lives <= 0) {
         console.log("Game Over!")
@@ -231,6 +205,36 @@ function updateScore() {
     g.score.innerHTML = `Score: ${player.score}`;
     g.lives.innerHTML = `Lives: ${player.lives}`;
     }
+}
+
+
+//  GAME BOARD SET UP
+function createGhost() {
+    let newGhost = g.ghost.cloneNode(true);
+    newGhost.pos = 11 + ghosts.length;
+    newGhost.style.display = 'block';
+    newGhost.counter = 0;
+    newGhost.dx = Math.floor(Math.random() * 4);
+    newGhost.style.backgroundColor = board[ghosts.length];
+    newGhost.style.opacity = '0.8'
+    newGhost.namer = board[ghosts.length] + 'y';
+    ghosts.push(newGhost);
+}
+
+function createGame() {
+    for(let i = 0; i < g.ghosts; i++) {
+        createGhost();
+    }
+    tempBoard.forEach((cell) => {
+        // console.log(cell);
+        createSquare(cell);
+    })
+    for(let i = 0; i < g.size; i++) {
+        g.x += ` ${g.h}px`; // cell grid height
+    }
+    g.grid.style.gridTemplateColumns = g.x;
+    g.grid.style.gridTemplateRows =  g.x;
+    startPos();
 }
 
 function createSquare(val) {
@@ -255,5 +259,23 @@ function createSquare(val) {
     div.addEventListener('click', (e) => {
         console.log(div);
     })
+}
 
+
+// GHOST LOGIC
+function findDir(a) {
+    let val = [a.pos % g.size, Math.ceil(a.pos/g.size)]; // col, row
+    return val;
+}
+
+function changeDir(ene) {
+    let gg = findDir(ene);
+    let pp = findDir(player);
+
+    let ran = Math.floor(Math.random() * 2);
+    if (ran == 0) { ene.dx = (gg)[0] < pp[0] ? 2 : 3 } // horizontal
+    else { ene.dx == (gg)[1] < pp[1] ? 1 : 0 } // vertical
+    
+    ene.dx = Math.floor(Math.random() * 4);
+    ene.counter = (Math.random() * 1) + 2;
 }
